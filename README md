@@ -24,6 +24,5 @@ Aplikasi berbasis web untuk mendiagnosis jenis gangguan tidur (seperti insomnia,
 ```text
 Sistem Pakar/
 │
-├── index.html          # Halaman utama & kuesioner sistem pakar
-├── README.md           # Dokumentasi dan deskripsi project
-└── [File Pendukung]    # Folder/file aset CSS atau JavaScript (jika ada)
+├── index.html          # Halaman utama, kuesioner, & logika Forward Chaining
+└── README.md           # Dokumentasi dan deskripsi project
