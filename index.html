@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Pakar Gangguan Tidur (Certainty Factor)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: radial-gradient(circle at 50% -20%, #1e1b4b, #0f172a, #020617);
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.45);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col relative overflow-x-hidden">
+
+    <nav id="app-nav" class="hidden bg-slate-900/80 border-b border-slate-800/80 sticky top-0 z-50 backdrop-blur-md shadow-lg">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">🌙 PakarTidur.id</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span id="nav-user-display" class="text-xs text-indigo-200 font-bold bg-slate-950/80 px-4 py-2 rounded-xl border border-indigo-500/20">User: -</span>
+                <button type="button" id="btn-nav-konsul" onclick="pindahHalaman('view-dashboard')" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 transition cursor-pointer">Consultation</button>
+                <button type="button" id="btn-nav-riwayat" onclick="pindahHalaman('view-riwayat')" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 transition cursor-pointer">Riwayat Hasil</button>
+                <button type="button" id="btn-nav-admin" onclick="pindahHalaman('view-admin')" class="hidden px-3 py-2 rounded-xl text-xs font-bold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 transition cursor-pointer">Rekap Data Global</button>
+                <button type="button" onclick="prosesLogout()" class="px-4 py-2 rounded-xl text-xs font-bold bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 transition cursor-pointer">Keluar</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 flex items-center justify-center p-4 md:p-8 relative z-10 w-full max-w-7xl mx-auto">
+
+        <section id="view-auth" class="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center py-6">
+            <div class="lg:col-span-7 space-y-6 text-left lg:pr-8">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold tracking-wide">
+                    <span>🧠</span> Certainty Factor Engine
+                </div>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.15]">
+                    Analisis Pola & <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">Kualitas Tidur Anda</span>
+                </h1>
+                <p class="text-slate-400 text-sm md:text-base max-w-xl leading-relaxed">
+                    Uji diagnosis gejala klinis dengan pembobotan pakar Certainty Factor. Akun tamu wajib mendaftar/login setelah tes untuk melihat & mendownload hasil riwayat.
+                </p>
+            </div>
+
+            <div class="lg:col-span-5 w-full max-w-md mx-auto">
+                <div class="glass-card rounded-[2.5rem] p-8 relative overflow-hidden shadow-[0_0_50px_rgba(99,102,241,0.1)]">
+                    <div class="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+                    
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-extrabold text-white tracking-tight">Mulai Analisis</h2>
+                        <p class="text-slate-400 text-xs mt-1.5">Silakan masuk atau daftar baru</p>
+                    </div>
+
+                    <div class="flex p-1 bg-slate-950/80 rounded-2xl border border-slate-800/80 mb-6">
+                        <button type="button" id="tab-login" onclick="switchAuthTab('login')" class="flex-1 py-2.5 text-center text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-indigo-700 shadow-xl rounded-xl cursor-pointer">Masuk Akun</button>
+                        <button type="button" id="tab-register" onclick="switchAuthTab('register')" class="flex-1 py-2.5 text-center text-xs font-bold text-slate-400 hover:text-slate-200 rounded-xl cursor-pointer">Daftar Baru</button>
+                    </div>
+
+                    <form id="form-auth" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Username</label>
+                            <input type="text" id="auth-username" required placeholder="Masukkan nama..." class="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Password</label>
+                            <input type="password" id="auth-password" required placeholder="••••••••" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <button type="submit" id="btn-auth-submit" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-95 text-white text-xs font-bold rounded-xl transition shadow-md uppercase tracking-wide cursor-pointer">Masuk Sekarang</button>
+                    </form>
+
+                    <div class="relative flex py-4 items-center">
+                        <div class="flex-grow border-t border-slate-800"></div>
+                        <span class="flex-shrink mx-3 text-[10px] text-slate-500 font-bold uppercase tracking-widest">Atau</span>
+                        <div class="flex-grow border-t border-slate-800"></div>
+                    </div>
+
+                    <button type="button" onclick="loginSebagaiTamu()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold rounded-xl transition flex items-center justify-center gap-2 cursor-pointer">
+                        <span>👤</span> Coba Sebagai Akun Tamu
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-dashboard" class="hidden w-full py-4 max-w-3xl mx-auto space-y-6">
+            
+            <div id="guest-lock-box" class="hidden bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-amber-500/40 rounded-[2rem] p-8 text-center space-y-6 shadow-2xl">
+                <div class="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center text-3xl mx-auto border border-amber-500/20">🔒</div>
+                <div class="space-y-2">
+                    <h3 class="text-2xl font-black text-white">Hasil Analisis Anda Terkunci!</h3>
+                    <p class="text-slate-400 text-xs max-w-md mx-auto leading-relaxed">
+                        Sebagai akun tamu, Anda tidak diizinkan melihat riwayat, melihat solusi, ataupun mengunduh PDF hasil diagnosa. Silakan **Daftar Akun Baru** atau **Login Member** sekarang untuk membuka data penuh Anda.
+                    </p>
+                </div>
+                <button type="button" onclick="arahkahTamuKeAuth()" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-xs rounded-xl uppercase tracking-wider shadow-lg hover:opacity-90 cursor-pointer">Daftar / Login Sekarang</button>
+            </div>
+
+            <div id="analysis-card" class="glass-card rounded-3xl p-6 md:p-8 shadow-2xl relative border border-slate-800">
+                <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2 border-b border-slate-800 pb-3">
+                    <span class="bg-indigo-500/10 p-1.5 rounded-lg text-indigo-400">📋</span> Kuesioner Diagnosis Gejala
+                </h2>
+                
+                <div id="questionnaire-box" class="bg-slate-950/40 border border-slate-800/80 rounded-2xl p-6 md:p-8 min-h-[240px] flex flex-col justify-between shadow-inner">
+                    <div>
+                        <span id="question-number" class="text-[11px] font-mono tracking-widest uppercase font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md">Pertanyaan 1 dari 5</span>
+                        <h3 id="question-text" class="text-lg md:text-xl text-slate-200 mt-4 font-medium leading-relaxed">-</h3>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4 mt-8">
+                        <button type="button" onclick="jawabKuesioner(true)" class="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl transition tracking-wider uppercase cursor-pointer shadow-lg">Ya (Mengalami)</button>
+                        <button type="button" onclick="jawabKuesioner(false)" class="flex-1 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm rounded-xl transition tracking-wider uppercase cursor-pointer shadow-md">Tidak</button>
+                    </div>
+                </div>
+
+                <div id="analysis-result-box" class="hidden bg-slate-950/80 border border-indigo-500/20 rounded-2xl p-6 md:p-8 space-y-6 shadow-2xl">
+                    <div class="border-b border-slate-800 pb-4 flex justify-between items-start">
+                        <div>
+                            <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest bg-purple-500/10 px-2 py-0.5 rounded">Hasil Diagnosa Sistem Pakar</span>
+                            <h4 id="result-disease" class="text-2xl font-black text-white mt-2 tracking-tight">-</h4>
+                        </div>
+                        <button type="button" id="btn-edit-consultation-admin" onclick="editHasilKonsultasiLangsung()" class="hidden px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-xl text-xs font-bold transition cursor-pointer">✏️ Edit Hasil Tes (Admin)</button>
+                    </div>
+                    <div class="space-y-2">
+                        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider block">Gejala Yang Dialami (Dijabarkan):</span>
+                        <ul id="result-symptoms" class="list-none text-xs text-slate-300 space-y-1.5 pl-0"></ul>
+                    </div>
+                    <div id="result-solution-wrapper"></div>
+                    <div class="pt-4 border-t border-slate-800 flex gap-4">
+                        <button type="button" onclick="resetKuesioner()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition cursor-pointer text-center uppercase tracking-wider">Ulangi Tes Baru</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-riwayat" class="hidden w-full max-w-4xl mx-auto py-4 space-y-4">
+            <div>
+                <h2 class="text-2xl font-bold text-white">Riwayat Hasil Pemeriksaan Resmi</h2>
+                <p class="text-xs text-slate-400 mt-1">Berikut rekaman rekam medis digital, jabaran gejala, and file cetak PDF Anda.</p>
+            </div>
+            <div id="riwayat-cards-container" class="space-y-4">
+                </div>
+        </section>
+
+        <section id="view-admin" class="hidden w-full max-w-6xl mx-auto py-4 space-y-6">
+            <div class="border-b border-slate-800 pb-3">
+                <h2 class="text-2xl font-bold text-emerald-400">🛠️ Konsol Administrator Pakar (Rekap Data Global)</h2>
+            </div>
+            <div class="glass-card rounded-3xl p-6 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-300 border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-800 bg-slate-950/60 text-slate-400">
+                                <th class="p-4 font-semibold">Nama Penguji</th>
+                                <th class="p-4 font-semibold">Waktu Pengujian</th>
+                                <th class="p-4 font-semibold">Hasil Penyakit (Certainty Factor)</th>
+                                <th class="p-4 font-semibold">Solusi Penanganan</th>
+                                <th class="p-4 font-semibold text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-table-body" class="divide-y divide-slate-800/50">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="border-t border-slate-800/80 bg-slate-950/80 py-4 text-center text-[11px] text-slate-500 relative z-10">
+        &copy; 2026 PakarTidur.id - Aplikasi Sistem Pakar Certainty Factor Berbasis Web
+    </footer>
+
+    <script>
+        const gejalasMaster = [
+            { id: "G01", text: "Sulit memulai tidur di malam hari", penyakit: "P01", cf: 0.8 },
+            { id: "G02", text: "Sering terbangun mendadak di tengah malam", penyakit: "P01", cf: 0.7 },
+            { id: "G03", text: "Badan merasa lesu/tidak segar saat bangun pagi", penyakit: "P01", cf: 0.5 },
+            { id: "G04", text: "Sering mengantuk berat di kondisi siang hari", penyakit: "P05", cf: 0.4 },
+            { id: "G05", text: "Durasi tidur tidak menentu / kurang dari 6 jam", penyakit: "P01", cf: 0.6 },
+            { id: "G07", text: "Tidur terlalu larut malam (di atas jam 1-2 pagi)", penyakit: "P06", cf: 0.8 },
+            { id: "G10", text: "Mendengkur dengan keras/bising saat tidur", penyakit: "P02", cf: 0.8 },
+            { id: "G11", text: "Napas sempat terhenti sesaat ketika tidur malam", penyakit: "P02", cf: 0.9 }
+        ];
+
+        const penyakitMaster = {
+            "P01": { nama: "Insomnia", solusi: "Terapkan Terapi Kontrol Stimulus & Sleep Hygiene: batasi kafein, matikan gawai 1 jam sebelum berbaring, dan jaga konsistensi jam bangun pagi." },
+            "P02": { nama: "Obstructive Sleep Apnea (OSA)", solusi: "Disarankan tidur posisi miring, kurangi berat bias berlebih, dan konsultasikan penggunaan mesin tekanan udara positif (CPAP)." },
+            "P05": { nama: "Hypersomnia Primer", solusi: "Buat jadwal tidur teratur, batasi tidur siang maks 20 menit, optimalkan asupan pencahayaan matahari pagi agar ritme sirkadian normal." },
+            "P06": { nama: "Delayed Sleep-Wake Phase Syndrome (DSPS)", solusi: "Lakukan terapi paparan cahaya terang di pagi hari secara konsisten dan kurangi pencahayaan lampu kamar tidur di malam hari sejak jam 10 malam." }
+        };
+
+        let activeUser = null; 
+        let sesiPertanyaanList = []; 
+        let indexPertanyaan = 0;
+        let jawabanSesi = {}; 
+        let currentTab = 'login';
+        
+        let temporaryGuestAnswers = null;
+        let currentActiveLogId = null; // Menyimpan id log yang baru saja dibuat di sesi kuesioner
+
+        function dapatkanWaktuLengkapSekarang() {
+            const sekarang = new Date();
+            const opsi = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            return sekarang.toLocaleDateString('id-ID', opsi) + " WIB";
+        }
+
+        function switchAuthTab(mode) {
+            currentTab = mode;
+            const tabL = document.getElementById("tab-login");
+            const tabR = document.getElementById("tab-register");
+            const btn = document.getElementById("btn-auth-submit");
+
+            if(mode === 'login') {
+                tabL.className = "flex-1 py-2.5 text-center text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-indigo-700 shadow-xl rounded-xl cursor-pointer";
+                tabR.className = "flex-1 py-2.5 text-center text-xs font-bold text-slate-400 hover:text-slate-200 rounded-xl cursor-pointer";
+                btn.innerText = "Masuk Sekarang";
+            } else {
+                tabR.className = "flex-1 py-2.5 text-center text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-indigo-700 shadow-xl rounded-xl cursor-pointer";
+                tabL.className = "flex-1 py-2.5 text-center text-xs font-bold text-slate-400 hover:text-slate-200 rounded-xl cursor-pointer";
+                btn.innerText = "Daftar Akun Baru";
+            }
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const u = document.getElementById("auth-username").value.trim();
+            const p = document.getElementById("auth-password").value.trim();
+
+            if(currentTab === 'login' && u === 'admin' && p === 'admin123') {
+                activeUser = { username: "Admin Website", role: 'admin' };
+                bukaDashboard();
+                return;
+            }
+
+            let db = JSON.parse(localStorage.getItem("pakar_cf_members")) || {};
+
+            if(currentTab === 'register') {
+                if(u.toLowerCase() === 'admin') return alert("Username 'admin' dilarang!");
+                if(db[u]) return alert("Username sudah terdaftar!");
+                db[u] = { password: p, history: [] };
+                localStorage.setItem("pakar_cf_members", JSON.stringify(db));
+                alert("Registrasi Member Berhasil! Silakan masuk.");
+                switchAuthTab('login');
+            } else {
+                if(db[u] && db[u].password === p) {
+                    activeUser = { username: u, role: 'member' };
+                    bukaDashboard();
+                    
+                    if(temporaryGuestAnswers) {
+                        jawabanSesi = temporaryGuestAnswers;
+                        temporaryGuestAnswers = null; 
+                        hitungCertaintyFactor(); 
+                    }
+                } else {
+                    alert("Username atau password salah!");
+                }
+            }
+        }
+
+        function loginSebagaiTamu() {
+            activeUser = { username: "Tamu", role: "guest" };
+            temporaryGuestAnswers = null;
+            bukaDashboard();
+        }
+
+        function arahkahTamuKeAuth() {
+            document.getElementById("view-dashboard").classList.add("hidden");
+            document.getElementById("app-nav").classList.add("hidden");
+            document.getElementById("view-auth").classList.remove("hidden");
+            switchAuthTab('register'); 
+        }
+
+        function bukaDashboard() {
+            document.getElementById("view-auth").classList.add("hidden");
+            document.getElementById("app-nav").classList.remove("hidden");
+            document.getElementById("nav-user-display").innerText = "User: " + activeUser.username;
+
+            const btnNavRiwayat = document.getElementById("btn-nav-riwayat");
+            const btnNavAdmin = document.getElementById("btn-nav-admin");
+
+            if(activeUser.role === 'guest') {
+                btnNavRiwayat.classList.add("hidden"); 
+                btnNavAdmin.classList.add("hidden");
+                pindahHalaman('view-dashboard');
+                resetKuesioner();
+            } else if (activeUser.role === 'admin') {
+                btnNavRiwayat.classList.remove("hidden"); 
+                btnNavAdmin.classList.remove("hidden"); 
+                pindahHalaman('view-admin'); 
+            } else {
+                btnNavRiwayat.classList.remove("hidden"); 
+                btnNavAdmin.classList.add("hidden");
+                pindahHalaman('view-dashboard');
+                if (!jawabanSesi || Object.keys(jawabanSesi).length === 0) {
+                    resetKuesioner();
+                }
+            }
+        }
+
+        function pindahHalaman(viewId) {
+            document.getElementById("view-dashboard").classList.add("hidden");
+            document.getElementById("view-riwayat").classList.add("hidden");
+            document.getElementById("view-admin").classList.add("hidden");
+            
+            document.getElementById(viewId).classList.remove("hidden");
+            if(viewId === 'view-riwayat') muatHalamanRiwayat();
+            if(viewId === 'view-admin') renderAdminPanelData();
+            if(viewId === 'view-dashboard' && (!sesiPertanyaanList || sesiPertanyaanList.length === 0 || indexPertanyaan === 0)) {
+                resetKuesioner();
+            }
+        }
+
+        function prosesLogout() {
+            activeUser = null;
+            temporaryGuestAnswers = null;
+            jawabanSesi = {};
+            currentActiveLogId = null;
+            document.getElementById("view-auth").classList.remove("hidden");
+            document.getElementById("app-nav").classList.add("hidden");
+            document.getElementById("view-dashboard").classList.add("hidden");
+            document.getElementById("view-riwayat").classList.add("hidden");
+            document.getElementById("view-admin").classList.add("hidden");
+        }
+
+        function buatSesiPertanyaan() {
+            let shuffled = [...gejalasMaster].sort(() => 0.5 - Math.random());
+            sesiPertanyaanList = shuffled.slice(0, 5); 
+        }
+
+        function tunjukkanSoal() {
+            if(indexPertanyaan < sesiPertanyaanList.length) {
+                document.getElementById("question-number").innerText = `Pertanyaan ${indexPertanyaan + 1} dari 5`;
+                document.getElementById("question-text").innerText = `Apakah Anda mengalami kondisi: "${sesiPertanyaanList[indexPertanyaan].text}"?`;
+            } else {
+                if(activeUser.role === 'guest') {
+                    temporaryGuestAnswers = { ...jawabanSesi };
+                }
+                hitungCertaintyFactor();
+            }
+        }
+
+        function jawabKuesioner(isYes) {
+            const item = sesiPertanyaanList[indexPertanyaan];
+            jawabanSesi[item.id] = isYes;
+            indexPertanyaan++;
+            tunjukkanSoal();
+        }
+
+        function hitungCertaintyFactor() {
+            let gejalaDipilih = Object.keys(jawabanSesi).filter(id => jawabanSesi[id] === true);
+            let cfPenyakitKombinasi = {}; 
+
+            gejalaDipilih.forEach(id => {
+                let g = gejalasMaster.find(item => item.id === id);
+                let pId = g.penyakit;
+                let cfHasilPakar = g.cf; 
+
+                if(!cfPenyakitKombinasi[pId]) {
+                    cfPenyakitKombinasi[pId] = cfHasilPakar;
+                } else {
+                    let cfLama = cfPenyakitKombinasi[pId];
+                    cfPenyakitKombinasi[pId] = cfLama + cfHasilPakar * (1 - cfLama);
+                }
+            });
+
+            let penyakitFinalId = "P01"; 
+            let cfTertinggi = 0;
+
+            for(let pId in cfPenyakitKombinasi) {
+                if(cfPenyakitKombinasi[pId] > cfTertinggi) {
+                    cfTertinggi = cfPenyakitKombinasi[pId];
+                    penyakitFinalId = pId;
+                }
+            }
+
+            let persentaseKeyakinan = (cfTertinggi * 100).toFixed(1);
+            let infoPenyakit = penyakitMaster[penyakitFinalId];
+            
+            let namaPenyakitTeks = "";
+            let solusiTeks = "";
+            let jabaranGejalaArray = [];
+
+            // KONDISI JIKA USER ADALAH TAMU (GUEST) -> DIBUAT TIDAK LENGKAP & SPESIFIK[cite: 1]
+            if (activeUser.role === 'guest') {
+                namaPenyakitTeks = gejalaDipilih.length === 0 ? "Normal / Pola Tidur Sehat" : `${infoPenyakit.nama} (Tingkat Keyakinan: Mengkhawatirkan...)`;
+                solusiTeks = gejalaDipilih.length === 0 ? "Pertahankan pola hidup sehat Anda." : "Ditemukan indikasi klinis! Solusi medis utama seperti terapi pembatasan gawai, aturan stimulasi kamar, serta rujukan resep dilarang ditampilkan pada akun tamu... [KONTEN DIKUNCI]";
+                
+                jabaranGejalaArray = gejalaDipilih.map((id, index) => {
+                    let g = gejalasMaster.find(item => item.id === id);
+                    return index === 0 ? `${g.text} (${g.id})` : `Gejala Klinis Ke-${index + 1} Terdeteksi... [Dikonfirmasi]`;
+                });
+
+                document.getElementById("questionnaire-box").classList.add("hidden");
+                document.getElementById("guest-lock-box").classList.add("hidden");
+                document.getElementById("analysis-card").classList.remove("hidden");
+                document.getElementById("analysis-result-box").classList.remove("hidden");
+
+                document.getElementById("result-disease").innerText = namaPenyakitTeks;
+                document.getElementById("btn-edit-consultation-admin").classList.add("hidden");
+
+                const listSymptomView = document.getElementById("result-symptoms");
+                listSymptomView.innerHTML = jabaranGejalaArray.length === 0 ? "<li>• Tidak ada keluhan gejala khusus.</li>" : jabaranGejalaArray.map(s => `<li>• ${s}</li>`).join('');
+                
+                document.getElementById("result-solution-wrapper").innerHTML = `
+                    <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl text-left space-y-3">
+                        <div>
+                            <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider block mb-1">⚠️ Solusi Penanganan Medis (Terbatas):</span>
+                            <p class="text-xs text-slate-300 leading-relaxed italic">${solusiTeks}</p>
+                        </div>
+                        <div class="pt-2 border-t border-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <span class="text-[10px] text-slate-400 font-medium">Daftar member gratis untuk melihat persentase akurat & mengunduh PDF laporan resmi.</span>
+                            <button type="button" onclick="arahkahTamuKeAuth()" class="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-90 text-white font-bold text-[10px] rounded-lg uppercase tracking-wider transition cursor-pointer shrink-0">Buka Hasil Penuh 🔓</button>
+                        </div>
+                    </div>`;
+
+            // KONDISI JIKA USER ADALAH MEMBER ATAU ADMIN (TAMPILKAN LENGKAP)[cite: 1]
+            } else {
+                namaPenyakitTeks = gejalaDipilih.length === 0 ? "Normal / Pola Tidur Sehat" : `${infoPenyakit.nama} (Tingkat Keyakinan CF: ${persentaseKeyakinan}%)`;
+                solusiTeks = gejalaDipilih.length === 0 ? "Pertahankan pola hidup sehat Anda." : infoPenyakit.solusi;
+                jabaranGejalaArray = gejalaDipilih.map(id => {
+                    let g = gejalasMaster.find(item => item.id === id);
+                    return `${g.text} (${g.id})`;
+                });
+
+                // Simpan logs & tangkap ID item-nya
+                currentActiveLogId = simpanKeDatabaseLogs(namaPenyakitTeks, jabaranGejalaArray, solusiTeks);
+                
+                document.getElementById("questionnaire-box").classList.add("hidden");
+                document.getElementById("guest-lock-box").classList.add("hidden");
+                document.getElementById("analysis-card").classList.remove("hidden");
+                document.getElementById("analysis-result-box").classList.remove("hidden");
+                
+                document.getElementById("result-disease").innerText = namaPenyakitTeks;
+                
+                // Tampilkan atau sembunyikan tombol edit di consultation khusus admin
+                const btnEditConsulAdmin = document.getElementById("btn-edit-consultation-admin");
+                if (activeUser.role === 'admin') {
+                    btnEditConsulAdmin.classList.remove("hidden");
+                } else {
+                    btnEditConsulAdmin.classList.add("hidden");
+                }
+
+                const listSymptomView = document.getElementById("result-symptoms");
+                listSymptomView.innerHTML = jabaranGejalaArray.length === 0 ? "<li>• Tidak ada keluhan gejala khusus.</li>" : jabaranGejalaArray.map(s => `<li>• ${s}</li>`).join('');
+                
+                updateSolusiWrapperHTML(solusiTeks);
+            }
+        }
+
+        function updateSolusiWrapperHTML(solusiTeks) {
+            document.getElementById("result-solution-wrapper").innerHTML = `
+                <div class="bg-indigo-950/40 border border-indigo-900/40 p-4 rounded-xl text-left">
+                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider block mb-1">Solusi Penanganan Medis:</span>
+                    <p id="result-solution-text-p" class="text-xs text-slate-300 leading-relaxed">${solusiTeks}</p>
+                </div>`;
+        }
+
+        function resetKuesioner() {
+            indexPertanyaan = 0;
+            jawabanSesi = {};
+            currentActiveLogId = null;
+            document.getElementById("questionnaire-box").classList.remove("hidden");
+            document.getElementById("analysis-card").classList.remove("hidden");
+            document.getElementById("analysis-result-box").classList.add("hidden");
+            document.getElementById("guest-lock-box").classList.add("hidden");
+            buatSesiPertanyaan();
+            tunjukkanSoal();
+        }
+
+        function simpanKeDatabaseLogs(diseaseName, symptomsArray, solutionText) {
+            let waktuStr = dapatkanWaktuLengkapSekarang();
+            let newId = 'REC-' + Date.now();
+            let dataLog = {
+                id: newId,
+                user: activeUser.username,
+                waktu: waktuStr,
+                disease: diseaseName,
+                symptoms: symptomsArray,
+                solution: solutionText
+            };
+
+            let globalLogs = JSON.parse(localStorage.getItem("pakar_cf_global_logs")) || [];
+            globalLogs.unshift(dataLog);
+            localStorage.setItem("pakar_cf_global_logs", JSON.stringify(globalLogs));
+            return newId;
+        }
+
+        // FUNGSI EDIT HASIL TES LANGSUNG DI HALAMAN CONSULTATION (KHUSUS ADMIN)
+        function editHasilKonsultasiLangsung() {
+            if(!currentActiveLogId) return alert("Data sesi tes aktif tidak ditemukan!");
+            
+            let globalLogs = JSON.parse(localStorage.getItem("pakar_cf_global_logs")) || [];
+            let logIndex = globalLogs.findIndex(item => item.id === currentActiveLogId);
+            
+            if(logIndex === -1) return alert("Rekam log tidak ditemukan di database!");
+
+            let logData = globalLogs[logIndex];
+            
+            let penyakitBaru = prompt("Ubah Nama Hasil Penyakit / Persentase CF (Sesi Sekarang):", logData.disease);
+            if(penyakitBaru === null) return;
+            
+            let solusiBaru = prompt("Ubah Solusi Penanganan Medis (Sesi Sekarang):", logData.solution);
+            if(solusiBaru === null) return;
+
+            globalLogs[logIndex].disease = penyakitBaru.trim() || logData.disease;
+            globalLogs[logIndex].solution = solusiBaru.trim() || logData.solution;
+
+            localStorage.setItem("pakar_cf_global_logs", JSON.stringify(globalLogs));
+            
+            // Perbarui tampilan halaman Consultation secara realtime
+            document.getElementById("result-disease").innerText = globalLogs[logIndex].disease;
+            updateSolusiWrapperHTML(globalLogs[logIndex].solution);
+
+            alert("Data hasil tes berhasil diperbarui oleh Admin!");
+        }
+
+        function muatHalamanRiwayat() {
+            const container = document.getElementById("riwayat-cards-container");
+            container.innerHTML = "";
+
+            let globalLogs = JSON.parse(localStorage.getItem("pakar_cf_global_logs")) || [];
+            
+            let logsToDisplay = activeUser.role === 'admin' ? globalLogs : globalLogs.filter(log => log.user === activeUser.username);
+
+            if(logsToDisplay.length === 0) {
+                container.innerHTML = "<p class='text-xs text-slate-500 italic text-center py-12 bg-slate-900/40 rounded-2xl border border-slate-800'>Belum ada rekaman riwayat pemeriksaan.</p>";
+                return;
+            }
+
+            logsToDisplay.forEach((item, index) => {
+                let gejalaLiTeks = item.symptoms.map(s => `<li>• ${s}</li>`).join('');
+                if(item.symptoms.length === 0) gejalaLiTeks = "<li>• Tidak ada keluhan gejala khusus (Kondisi Sehat).</li>";
+
+                container.innerHTML += `
+                    <div class="bg-slate-950/70 border border-slate-800 p-6 rounded-2xl space-y-4 text-left shadow-xl" id="card-riwayat-${item.id}">
+                        <div class="flex justify-between items-center border-b border-slate-900 pb-2 text-[11px]">
+                            <span class="font-mono text-indigo-400 font-bold">⏱️ Waktu Tes: ${item.waktu}</span>
+                            <span class="text-slate-500 font-semibold uppercase tracking-wider">User: @${item.user}</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-500 block uppercase tracking-wider font-bold">Analisis Penyakit:</span>
+                            <h4 class="text-sm font-bold text-white mt-0.5">${item.disease}</h4>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">Gejala (Dijabarkan):</span>
+                            <ul class="text-slate-300 text-xs mt-1 space-y-1 pl-1 leading-relaxed">${gejalaLiTeks}</ul>
+                        </div>
+                        <div class="bg-indigo-950/30 p-3 rounded-xl border border-indigo-900/30 text-slate-300 text-xs">
+                            <span class="text-[10px] text-indigo-400 block font-extrabold uppercase mb-1">Solusi Medis:</span>
+                            ${item.solution}
+                        </div>
+                        <button type="button" onclick="unduhLaporanPDFDariStorage('${item.id}')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl transition text-xs uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer shadow-md">
+                            <span>📥</span> Download Riwayat PDF
+                        </button>
+                    </div>`;
+            });
+        }
+
+        function renderAdminPanelData() {
+            const body = document.getElementById("admin-table-body");
+            body.innerHTML = "";
+            let globalLogs = JSON.parse(localStorage.getItem("pakar_cf_global_logs")) || [];
+
+            if(globalLogs.length === 0) {
+                body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 italic">Belum ada rekaman data pengujian global dari pengguna.</td></tr>`;
+                return;
+            }
+
+            globalLogs.forEach(h => {
+                body.innerHTML += `
+                    <tr class="border-b border-slate-900 hover:bg-slate-900/40 text-xs">
+                        <td class="p-4 font-bold text-indigo-300">@${h.user}</td>
+                        <td class="p-4 text-slate-400 font-mono">${h.waktu}</td>
+                        <td class="p-4 text-white font-semibold">${h.disease}</td>
+                        <td class="p-4 text-slate-400 max-w-xs truncate" title="${h.solution}">${h.solution}</td>
+                        <td class="p-4 text-center space-x-2 whitespace-nowrap">
+                            <button onclick="editLogAdmin('${h.id}')" class="px-2.5 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 rounded-md font-bold transition cursor-pointer">Edit</button>
+                            <button onclick="hapusLogAdmin('${h.id}')" class="px-2.5 py-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/20 rounded-md font-bold transition cursor-pointer">Hapus</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function editLogAdmin(logId) {
+            let globalLogs = JSON.parse(localStorage.getItem("pakar_cf_global_logs")) || [];
+            let logIndex = globalLogs.findIndex(item => item.id === logId);
+            
+            if(logIndex === -1) return alert("Data tidak ditemukan!");
+
+            let logData = globalLogs[logIndex];
+            
+            let penyakitBaru = prompt("Ubah Nama Hasil Penyakit / Persentase CF:", logData.disease);
+            if(penyakitBaru === null) return; 
+            
+            let solusiBaru = prompt("Ubah Solusi Penanganan Medis:", logData.solution);
+            if(solusiBaru === null) return; 
+
+            globalLogs[logIndex].disease = penyakitBaru.trim() || logData.disease;
+            globalLogs[logIndex].solution = solusiBaru.trim() || logData.solution;
+
+            localStorage.setItem("pakar_cf_global_logs", JSON.stringify(globalLogs));
+            alert("Data Berhasil Diperbarui!");
+            renderAdminPanelData();
+        }
+
+        function hapusLogAdmin(logId) {
+            if(confirm("Apakah Anda yakin ingin menghapus data pengujian ini secara permanen?")) {
+                let globalLogs = JSON.parse(localStorage.getItem("pakar_cf_global_logs")) || [];
+                let filtered = globalLogs.filter(item => item.id !== logId);
+                localStorage.setItem("pakar_cf_global_logs", JSON.stringify(filtered));
+                alert("Data Berhasil Dihapus!");
+                renderAdminPanelData();
+            }
+        }
+
+        function unduhLaporanPDFDariStorage(logId) {
+            let globalLogs = JSON.parse(localStorage.getItem("pakar_cf_global_logs")) || [];
+            let item = globalLogs.find(log => log.id === logId);
+            
+            if(!item) return alert("Data riwayat tidak ditemukan!");
+
+            let gejalaHtmlList = item.symptoms.map(s => `<li style="margin-bottom:4px;">• ${s}</li>`).join('');
+            if(item.symptoms.length === 0) gejalaHtmlList = "<li>• Tidak ada keluhan gejala khusus (Kondisi Sehat).</li>";
+
+            const docElement = document.createElement('div');
+            docElement.style.color = '#000000';
+            docElement.style.backgroundColor = '#ffffff';
+            docElement.style.padding = '40px';
+            docElement.style.fontFamily = 'Arial, sans-serif';
+            
+            docElement.innerHTML = `
+                <div style="border-bottom: 3px solid #4f46e5; padding-bottom: 12px; margin-bottom: 24px;">
+                    <h1 style="font-size: 18px; font-weight: bold; margin: 0; color: #4f46e5;">PakarTidur.id — REKAM MEDIS DIGITAL</h1>
+                    <p style="font-size: 11px; color: #4b5563; margin: 6px 0 0 0;">Waktu: <strong>${item.waktu}</strong> | Akun: <strong>@${item.user}</strong></p>
+                </div>
+                
+                <div style="margin-bottom: 24px; background-color: #fef2f2; padding: 15px; border-radius: 8px; border: 1px solid #fee2e2;">
+                    <h3 style="font-size: 10px; font-weight: bold; color: #991b1b; text-transform: uppercase; margin: 0 0 4px 0;">Hasil Analisis Sistem Pakar (Certainty Factor):</h3>
+                    <p style="font-size: 15px; font-weight: bold; margin: 0; color: #b91c1c;">${item.disease}</p>
+                </div>
+                
+                <div style="margin-bottom: 24px;">
+                    <h3 style="font-size: 11px; font-weight: bold; color: #111827; text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px;">Jabaran Gejala Klinis:</h3>
+                    <ul style="padding-left: 0; list-style-type: none; margin: 0; font-size: 11px; line-height: 1.6; color: #374151;">
+                        ${gejalaHtmlList}
+                    </ul>
+                </div>
+                
+                <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; border-left: 5px solid #4f46e5;">
+                    <h3 style="font-size: 11px; font-weight: bold; color: #4f46e5; margin: 0 0 4px 0; text-transform: uppercase;">Rekomendasi Tindakan / Solusi Medis:</h3>
+                    <p style="font-size: 11px; line-height: 1.5; margin: 0; color: #1f2937;">${item.solution}</p>
+                </div>
+                
+                <p style="margin-top: 60px; font-size: 9px; color: #9ca3af; text-align: center; border-top: 1px dashed #d1d5db; padding-top: 15px;">Laporan digital ini sah dihasilkan oleh mesin inferensi PakarTidur.id.</p>
+            `;
+
+            const opt = {
+                margin:       0.5,
+                filename:     `Laporan_CertaintyFactor_${logId}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(docElement).save();
+        }
+    </script>
+</body>
+</html>
