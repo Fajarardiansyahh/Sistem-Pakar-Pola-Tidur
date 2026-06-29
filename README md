@@ -1,0 +1,28 @@
+# 🌙 Sistem Pakar Diagnosis Pola & Gangguan Tidur
+
+Aplikasi berbasis web untuk mendiagnosis jenis gangguan tidur (seperti insomnia, hipersomnia, atau sleep apnea) berdasarkan gejala-gejala yang dialami oleh pengguna menggunakan metode Sistem Pakar.
+
+---
+
+## 🚀 Fitur Utama
+* **Kuesioner Interaktif**: Pertanyaan dinamis untuk mengidentifikasi gejala gangguan tidur secara terstruktur.
+* **Diagnosis Akurat**: Hasil analisis yang mengacu pada basis pengetahuan pakar (Rule-Based System).
+* **Solusi & Rekomendasi**: Menampilkan saran penanganan dini untuk memperbaiki pola tidur secara mandiri.
+* **Responsif**: Desain antarmuka yang bersih dan nyaman diakses lewat laptop maupun smartphone.
+
+---
+
+## 🛠️ Teknologi yang Digunakan
+* **HTML5** – Struktur halaman kuesioner dan tata letak antarmuka.
+* **CSS3** – Desain tampilan visual yang modern dan responsif.
+* **JavaScript (ES6)** – Logika mesin inferensi (*inference engine*) untuk memproses jawaban kuesioner.
+
+---
+
+## 📂 Struktur Project
+```text
+Sistem Pakar/
+│
+├── index.html          # Halaman utama & kuesioner sistem pakar
+├── README.md           # Dokumentasi dan deskripsi project
+└── [File Pendukung]    # Folder/file aset CSS atau JavaScript (jika ada)
