@@ -1,28 +1,22 @@
-#  Sistem Pakar Diagnosis Pola & Gangguan Tidur
+#  PakarTidur.id - Sistem Pakar Gangguan Tidur
 
-Aplikasi berbasis web untuk mendiagnosis jenis gangguan tidur (seperti insomnia, hipersomnia, atau sleep apnea) berdasarkan gejala-gejala yang dialami oleh pengguna menggunakan metode Forward Chaining dan Certainty Factor (CF).
-
----
+Aplikasi Sistem Pakar berbasis web untuk mendiagnosis gangguan tidur menggunakan metode **Certainty Factor (CF)**. Aplikasi ini dirancang untuk menganalisis pola dan kualitas tidur pengguna berdasarkan gejala-gejala klinis yang dialami.
 
 ##  Fitur Utama
-* **Kuesioner Interaktif**: Pertanyaan dinamis untuk mengidentifikasi gejala gangguan tidur secara terstruktur.
-* **Diagnosis Akurat**: Hasil analisis yang mengacu pada basis pengetahuan pakar (Rule-Based System).
-* **Solusi & Rekomendasi**: Menampilkan saran penanganan dini untuk memperbaiki pola tidur secara mandiri.
-* **Responsif**: Desain antarmuka yang bersih dan nyaman diakses lewat laptop maupun smartphone.
+* **Inferensi Certainty Factor:** Menghitung tingkat keyakinan diagnosis secara akurat berdasarkan pembobotan pakar.
+* **28 Pertanyaan Kuesioner Lengkap:** Meliputi seluruh indikasi gejala klinis secara berurutan untuk hasil yang lebih valid.
+* **Sistem Multi-User:** Mendukung peran Akun Tamu (Guest) dengan akses terbatas, Member Resmi, dan Konsol Administrator.
+* **Cetak Rekam Medis (PDF):** Fitur unduh laporan hasil pemeriksaan resmi secara instan menggunakan `html2pdf.js`.
+* **Panel Admin (Rekap Global):** Konsol khusus administrator untuk memantau, mengedit, dan menghapus log riwayat pemeriksaan global.
 
----
+##  Daftar Penyakit yang Didukung
+1. **Insomnia (P01)**
+2. **Obstructive Sleep Apnea / OSA (P02)**
+3. **Hypersomnia Primer (P05)**
+4. **Delayed Sleep-Wake Phase Syndrome / DSPS (P06)**
 
-##  Teknologi & Metode yang Digunakan
-* **Metode Forward Chaining** – Pelacakan ke depan untuk mengumpulkan gejala klinis dari jawaban kuesioner pengguna secara berurutan.
-* **Metode Certainty Factor** – Menghitung tingkat kepastian dan keyakinan hasil diagnosis berdasarkan bobot pakar.
-* **HTML5 & CSS3** – Desain antarmuka kuesioner yang modern menggunakan Tailwind CSS.
-* **JavaScript (ES6)** – Logika mesin inferensi (*inference engine*) sistem pakar.
-
----
-
-## 📂 Struktur Project
-```text
-Sistem Pakar/
-│
-├── index.html          # Halaman utama, kuesioner, & logika Forward Chaining
-└── README.md           # Dokumentasi dan deskripsi project
+##  Teknologi yang Digunakan
+* HTML5 & JavaScript (Vanilla)
+* Tailwind CSS (Styling & Glassmorphism Design)
+* LocalStorage (Database Log & Session)
+* html2pdf.js (Export PDF Engine)
