@@ -112,7 +112,7 @@
                 
                 <div id="questionnaire-box" class="bg-slate-950/40 border border-slate-800/80 rounded-2xl p-6 md:p-8 min-h-[240px] flex flex-col justify-between shadow-inner">
                     <div>
-                        <span id="question-number" class="text-[11px] font-mono tracking-widest uppercase font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md">Pertanyaan 1 dari 5</span>
+                        <span id="question-number" class="text-[11px] font-mono tracking-widest uppercase font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md">Pertanyaan 1 dari 28</span>
                         <h3 id="question-text" class="text-lg md:text-xl text-slate-200 mt-4 font-medium leading-relaxed">-</h3>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-4 mt-8">
@@ -147,7 +147,7 @@
                 <p class="text-xs text-slate-400 mt-1">Berikut rekaman rekam medis digital, jabaran gejala, and file cetak PDF Anda.</p>
             </div>
             <div id="riwayat-cards-container" class="space-y-4">
-                </div>
+            </div>
         </section>
 
         <section id="view-admin" class="hidden w-full max-w-6xl mx-auto py-4 space-y-6">
@@ -167,7 +167,7 @@
                             </tr>
                         </thead>
                         <tbody id="admin-table-body" class="divide-y divide-slate-800/50">
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -180,14 +180,41 @@
 
     <script>
         const gejalasMaster = [
+            // === INSOMNIA (P01) ===
             { id: "G01", text: "Sulit memulai tidur di malam hari", penyakit: "P01", cf: 0.8 },
             { id: "G02", text: "Sering terbangun mendadak di tengah malam", penyakit: "P01", cf: 0.7 },
-            { id: "G03", text: "Badan merasa lesu/tidak segar saat bangun pagi", penyakit: "P01", cf: 0.5 },
-            { id: "G04", text: "Sering mengantuk berat di kondisi siang hari", penyakit: "P05", cf: 0.4 },
-            { id: "G05", text: "Durasi tidur tidak menentu / kurang dari 6 jam", penyakit: "P01", cf: 0.6 },
-            { id: "G07", text: "Tidur terlalu larut malam (di atas jam 1-2 pagi)", penyakit: "P06", cf: 0.8 },
-            { id: "G10", text: "Mendengkur dengan keras/bising saat tidur", penyakit: "P02", cf: 0.8 },
-            { id: "G11", text: "Napas sempat terhenti sesaat ketika tidur malam", penyakit: "P02", cf: 0.9 }
+            { id: "G03", text: "Badan merasa lesu, lelah, atau tidak segar saat bangun pagi", penyakit: "P01", cf: 0.5 },
+            { id: "G04", text: "Terbangun terlalu dini hari dan sulit untuk tidur kembali", penyakit: "P01", cf: 0.7 },
+            { id: "G05", text: "Durasi tidur tidak menentu atau kurang dari 6 jam sehari", penyakit: "P01", cf: 0.6 },
+            { id: "G06", text: "Merasa cemas, gelisah, atau stres saat bersiap untuk tidur", penyakit: "P01", cf: 0.5 },
+            { id: "G07", text: "Mengalami sakit kepala atau ketegangan otot di siang hari akibat kurang tidur", penyakit: "P01", cf: 0.4 },
+
+            // === OBSTRUCTIVE SLEEP APNEA / OSA (P02) ===
+            { id: "G08", text: "Mendengkur dengan keras, kasar, atau bising saat tidur malam", penyakit: "P02", cf: 0.8 },
+            { id: "G09", text: "Napas sempat terhenti sesaat atau tersedak ketika tidur malam", penyakit: "P02", cf: 0.9 },
+            { id: "G10", text: "Terbangun dengan kondisi mulut terasa kering atau tenggorokan sakit", penyakit: "P02", cf: 0.5 },
+            { id: "G11", text: "Sering terbangun di malam hari karena ingin buang air kecil (nokturia)", penyakit: "P02", cf: 0.4 },
+            { id: "G12", text: "Sering mengalami mimpi buruk yang terasa sangat menyesakkan napas", penyakit: "P02", cf: 0.5 },
+            { id: "G13", text: "Dada terasa berdebar atau berkeringat berlebih di malam hari", penyakit: "P02", cf: 0.6 },
+            { id: "G14", text: "Mengalami penurunan konsentrasi atau fokus yang drastis di siang hari", penyakit: "P02", cf: 0.4 },
+
+            // === HYPERSOMNIA PRIMER (P05) ===
+            { id: "G15", text: "Sering mengantuk berat atau tertidur spontan di kondisi siang hari", penyakit: "P05", cf: 0.7 },
+            { id: "G16", text: "Durasi tidur malam sangat panjang (lebih dari 9-10 jam) tapi tetap lelah", penyakit: "P05", cf: 0.8 },
+            { id: "G17", text: "Sulit untuk benar-benar sadar penuh atau linglung setelah bangun tidur", penyakit: "P05", cf: 0.6 },
+            { id: "G18", text: "Membutuhkan waktu tidur siang yang sangat lama namun tidak menyegarkan badan", penyakit: "P05", cf: 0.7 },
+            { id: "G19", text: "Merasa stamina tubuh cepat merosot walau tidak melakukan aktivitas berat", penyakit: "P05", cf: 0.4 },
+            { id: "G20", text: "Sering ketiduran saat melakukan aktivitas pasif (seperti membaca atau menonton)", penyakit: "P05", cf: 0.6 },
+            { id: "G21", text: "Mengalami kesulitan dalam mengingat hal-hal detail atau gampang lupa", penyakit: "P05", cf: 0.5 },
+
+            // === DELAYED SLEEP-WAKE PHASE SYNDROME / DSPS (P06) ===
+            { id: "G22", text: "Tidur terlalu larut malam secara konsisten (di atas jam 1 atau 2 pagi)", penyakit: "P06", cf: 0.8 },
+            { id: "G23", text: "Sangat sulit bangun di pagi hari pada jam aktivitas normal (sekolah/kuliah)", penyakit: "P06", cf: 0.8 },
+            { id: "G24", text: "Merasakan puncak energi, kreativitas, atau kesegaran justru di tengah malam", penyakit: "P06", cf: 0.7 },
+            { id: "G25", text: "Pola tidur bergeser drastis (tidur subuh dan baru bisa bangun di siang hari)", penyakit: "P06", cf: 0.9 },
+            { id: "G26", text: "Mengalami insomnia parah HANYA jika dipaksa tidur lebih cepat dari jam biasa", penyakit: "P06", cf: 0.7 },
+            { id: "G27", text: "Sering merasa jet-lag atau lelah ekstrem di pagi hari namun hilang di sore hari", penyakit: "P06", cf: 0.5 },
+            { id: "G28", text: "Kualitas tidur terasa sangat menyenyak dan normal asalkan jam bangunnya dibebaskan", penyakit: "P06", cf: 0.6 }
         ];
 
         const penyakitMaster = {
@@ -332,12 +359,12 @@
 
         function buatSesiPertanyaan() {
             let shuffled = [...gejalasMaster].sort(() => 0.5 - Math.random());
-            sesiPertanyaanList = shuffled.slice(0, 5); 
+            sesiPertanyaanList = shuffled.slice(0, 28); 
         }
 
         function tunjukkanSoal() {
             if(indexPertanyaan < sesiPertanyaanList.length) {
-                document.getElementById("question-number").innerText = `Pertanyaan ${indexPertanyaan + 1} dari 5`;
+                document.getElementById("question-number").innerText = `Pertanyaan ${indexPertanyaan + 1} dari 28`;
                 document.getElementById("question-text").innerText = `Apakah Anda mengalami kondisi: "${sesiPertanyaanList[indexPertanyaan].text}"?`;
             } else {
                 if(activeUser.role === 'guest') {
